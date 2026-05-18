@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
+<title>キャッシュフロー管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#e8e7e0;min-height:100vh}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif;font-size:14px;color:#1a1a1a;display:flex;justify-content:center}
+#app{width:100%;max-width:480px;min-height:100vh;background:#f0efe8}
+.hdr{background:#fff;border-bottom:1px solid #e4e3dc;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.mnav{display:flex;align-items:center;gap:4px}
+.mnav button{background:none;border:none;cursor:pointer;font-size:22px;color:#777;padding:2px 8px;line-height:1;-webkit-tap-highlight-color:transparent}
+.mnav .mlbl{font-size:14px;font-weight:600;min-width:90px;text-align:center}
+.hbtns{display:flex;gap:6px}
+.nav{display:flex;background:#fff;border-top:1px solid #e4e3dc;position:sticky;bottom:0;z-index:50}
+.nb{flex:1;padding:7px 2px 9px;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;cursor:pointer;font-size:9px;color:#aaa;-webkit-tap-highlight-color:transparent}
+.nb.on{color:#2563eb}
+.ni{font-size:19px;line-height:1.2}
+.page{padding:12px;padding-bottom:84px}
+.card{background:#fff;border-radius:14px;border:1px solid #eaeae4;margin-bottom:10px;overflow:hidden}
+.chd{padding:11px 14px;border-bottom:1px solid #f0efe8;display:flex;align-items:center;justify-content:space-between}
+.cti{font-size:12px;font-weight:600;color:#888}
+.cbd{padding:12px 14px}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.mc{background:#fff;border-radius:12px;border:1px solid #eaeae4;padding:11px 12px}
+.mla{font-size:11px;color:#aaa;margin-bottom:3px}
+.mva{font-size:18px;font-weight:700}
+.ci{color:#0a7a5e}.ce{color:#b03a1a}.cp{color:#1d4ed8}.cn{color:#c0392b}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:8px 13px;border-radius:9px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#333;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.btn:active{opacity:.75}
+.bblu{background:#2563eb;color:#fff;border-color:#2563eb}
+.bred{color:#c0392b;border-color:#f0a0a0}
+.bsm{padding:5px 10px;font-size:12px}
+.bic{padding:5px 6px;border:none;background:none;cursor:pointer;font-size:15px;color:#ccc;border-radius:6px;-webkit-tap-highlight-color:transparent}
+.fgrp{margin-bottom:12px}
+.flbl{font-size:12px;color:#777;margin-bottom:4px;display:block;font-weight:500}
+.finp{width:100%;padding:10px 12px;border-radius:9px;border:1px solid #ddd;background:#fff;font-size:15px;color:#1a1a1a;outline:none;-webkit-appearance:none;appearance:none}
+.finp:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.frow{display:flex;gap:8px}
+.frow>.fgrp{flex:1}
+.bdg{display:inline-flex;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:600}
+.b1{background:#dbeafe;color:#1e40af}
+.b2{background:#dcfce7;color:#166534}
+.b3{background:#fef3c7;color:#92400e}
+.b4{background:#fee2e2;color:#991b1b}
+.b5{background:#ede9fe;color:#5b21b6}
+.b6{background:#f3f4f6;color:#555}
+.tabs{display:flex;gap:5px;margin-bottom:11px;overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:6px 12px;border-radius:20px;border:1px solid #ddd;background:none;cursor:pointer;font-size:12px;font-weight:600;color:#888;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.tab.on{background:#2563eb;color:#fff;border-color:#2563eb}
+.tx{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f2f2ec}
+.tx:last-child{border-bottom:none}
+.txico{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.txi{background:#dcfce7;color:#0a7a5e}
+.txe{background:#fee2e2;color:#b03a1a}
+.txinfo{flex:1;min-width:0}
+.txname{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.txmeta{font-size:10px;color:#aaa;margin-top:2px}
+.txamt{font-size:13px;font-weight:700;flex-shrink:0}
+.tai{color:#0a7a5e}.tae{color:#b03a1a}
+.li{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f2f2ec}
+.li:last-child{border-bottom:none}
+.linfo{flex:1;min-width:0}
+.lname{font-size:13px;font-weight:600}
+.lsub{font-size:11px;color:#aaa;margin-top:2px}
+.lamt{font-size:14px;font-weight:700;flex-shrink:0}
+.lacts{display:flex;gap:0;flex-shrink:0}
+.pb{height:6px;background:#f0efe8;border-radius:3px;overflow:hidden;margin-top:4px}
+.pf{height:100%;border-radius:3px}
+.cbar{display:flex;height:9px;border-radius:5px;overflow:hidden;margin:7px 0 10px}
+.acd{display:flex;align-items:center;justify-content:space-between;cursor:pointer;padding:11px 14px;-webkit-tap-highlight-color:transparent}
+.sbox{display:flex;align-items:center;gap:7px;background:#fff;border:1px solid #ddd;border-radius:10px;padding:8px 12px;margin-bottom:10px}
+.sbox input{border:none;background:none;outline:none;flex:1;font-size:14px;color:#1a1a1a;-webkit-appearance:none}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:18px;padding:20px 16px 24px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.moti{font-size:15px;font-weight:700;margin-bottom:16px;text-align:center}
+.mobt{display:flex;gap:8px;margin-top:4px}
+.mobt .btn{flex:1;justify-content:center}
+.irrtag{display:inline-flex;align-items:center;background:#fef3c7;color:#92400e;border:1px solid #fde68a;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:600;margin-top:3px}
+.empty{text-align:center;padding:20px;color:#ccc;font-size:13px}
+canvas{display:block;background:#fff}
+.paytag{display:inline-flex;align-items:center;gap:3px;background:#dbeafe;color:#1e40af;border-radius:20px;padding:4px 8px 4px 10px;font-size:12px;font-weight:600;margin:2px}
+.paytag button{background:none;border:none;cursor:pointer;color:#93b4e0;font-size:14px;padding:0 0 0 2px;line-height:1}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+'use strict';
+
+/* ══ 定数 ════════════════════════════════════════════ */
+var IC=['給料','副業','ココナラ','アプリ売上','動画編集','その他'];
+var EC=['食費','交通費','固定費','サブスク','娯楽','美容','日用品','その他'];
+var CC={'給料':'b2','副業':'b1','ココナラ':'b5','アプリ売上':'b3','動画編集':'b4','その他':'b6',
+  '食費':'b4','交通費':'b1','固定費':'b3','サブスク':'b5','娯楽':'b2','美容':'b6','日用品':'b1'};
+var CRDS=['楽天カード','三井住友カード','ビューカード'];
+var CCOL=['#2563eb','#0a7a5e','#d97706'];
+
+/* ══ ユーティリティ ══════════════════════════════════ */
+function fmt(n){return '¥'+Math.abs(Math.round(n)).toLocaleString('ja-JP');}
+function toDay(){return new Date().toISOString().split('T')[0];}
+function nowYM(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1);}
+function p2(n){return String(n).padStart(2,'0');}
+function sumA(a,f){return a.reduce(function(s,x){return s+(f?f(x):x);},0);}
+
+/* ══ DOM ════════════════════════════════════════════ */
+function h(tag,props,kids){
+  var e=document.createElement(tag);
+  if(props){
+    for(var k in props){
+      if(!Object.prototype.hasOwnProperty.call(props,k))continue;
+      var v=props[k];
+      if(k==='cls')          e.className=v;
+      else if(k==='style')   Object.assign(e.style,v);
+      else if(k.slice(0,2)==='on') e.addEventListener(k.slice(2),v);
+      else                   e.setAttribute(k,v);
+    }
+  }
+  if(kids!=null){
+    [].concat(kids).forEach(function(c){
+      if(c==null||c===false||c===undefined)return;
+      if(typeof c==='string'||typeof c==='number') e.appendChild(document.createTextNode(String(c)));
+      else e.appendChild(c);
+    });
+  }
+  return e;
+}
+function d(cls,kids){return h('div',cls?{cls:cls}:null,kids);}
+function t(s){return document.createTextNode(String(s==null?'':s));}
+
+/* ══ 状態 ════════════════════════════════════════════ */
+var S={
+  page:'dashboard', ym:nowYM(),
+  incomes:[
+    {id:1,date:'2026-05-01',amount:250000,category:'給料',     name:'5月給与',     memo:''},
+    {id:2,date:'2026-05-10',amount:55000, category:'アプリ売上',name:'アプリ収益',  memo:''},
+    {id:3,date:'2026-05-15',amount:35000, category:'ココナラ',  name:'デザイン案件',memo:''},
+    {id:4,date:'2026-05-12',amount:80000, category:'動画編集',  name:'動画編集案件',memo:''},
+  ],
+  expenses:[
+    {id:1,date:'2026-05-02',amount:12000,payment:'楽天カード',    category:'食費',   name:'スーパーまとめ買い',memo:''},
+    {id:2,date:'2026-05-03',amount:2500, payment:'PayPay',        category:'食費',   name:'カフェ',           memo:''},
+    {id:3,date:'2026-05-05',amount:68000,payment:'三井住友カード',category:'固定費', name:'家賃',             memo:''},
+    {id:4,date:'2026-05-07',amount:980,  payment:'楽天カード',    category:'サブスク',name:'Netflix',         memo:''},
+    {id:5,date:'2026-05-08',amount:3000, payment:'ビューカード',  category:'交通費', name:'新幹線',           memo:''},
+    {id:6,date:'2026-05-10',amount:8000, payment:'楽天カード',    category:'娯楽',   name:'ゲーム',           memo:''},
+    {id:7,date:'2026-05-11',amount:1500, payment:'PayPay',        category:'食費',   name:'コンビニ',         memo:''},
+    {id:8,date:'2026-05-13',amount:5000, payment:'現金',          category:'美容',   name:'散髪',             memo:''},
+    {id:9,date:'2026-05-14',amount:3500, payment:'三井住友カード',category:'食費',   name:'外食',             memo:''},
+  ],
+  payments:['現金','PayPay','楽天カード','三井住友カード','ビューカード'],
+  subs:[
+    {id:1,name:'Netflix',     amount:980, day:7, payment:'楽天カード',    irregs:[]},
+    {id:2,name:'ChatGPT Plus',amount:3200,day:15,payment:'楽天カード',    irregs:[]},
+    {id:3,name:'Adobe CC',    amount:6480,day:1, payment:'三井住友カード',irregs:[]},
+    {id:4,name:'Spotify',     amount:980, day:10,payment:'楽天カード',    irregs:[]},
+  ],
+  fixed:[
+    {id:1,name:'家賃',  amount:68000,payment:'三井住友カード',irregs:[]},
+    {id:2,name:'電気代',amount:8000, payment:'楽天カード',    irregs:[]},
+    {id:3,name:'水道代',amount:3000, payment:'現金',          irregs:[]},
+    {id:4,name:'ガス代',amount:2500, payment:'現金',          irregs:[]},
+  ],
+  locked:{}, // {ym: {fixed:[{id,name,amt}], subs:[{id,name,amt}]}}
+  modal:null, edit:null, cbOK:null,
+  txTab:'all', txQ:'', txCat:'', txPay:'',
+  openCard:null,
+  irrTgt:null,
+};
+
+/* ══ 金額取得（③イレギュラー対応） ══════════════════ */
+function effAmt(item,ym){
+  var irr=(item.irregs||[]).filter(function(x){return x.ym===ym;})[0];
+  return irr?irr.amount:item.amount;
+}
+function fixedForYM(ym){
+  if(S.locked[ym])return S.locked[ym].fixed;
+  return S.fixed.map(function(f){return Object.assign({},f,{_eff:effAmt(f,ym)});});
+}
+function subsForYM(ym){
+  if(S.locked[ym])return S.locked[ym].subs;
+  return S.subs.map(function(s){return Object.assign({},s,{_eff:effAmt(s,ym)});});
+}
+function isLocked(ym){return ym<nowYM();}
+
+/* ══ 集計 ════════════════════════════════════════════ */
+function calc(){
+  var ym=S.ym,yr=+ym.slice(0,4),mo=+ym.slice(5);
+  var mI=S.incomes.filter(function(x){return x.date.slice(0,7)===ym;});
+  var mE=S.expenses.filter(function(x){return x.date.slice(0,7)===ym;});
+  var tI=sumA(mI,function(x){return x.amount;});
+  var tE=sumA(mE,function(x){return x.amount;});
+  var fxL=fixedForYM(ym);
+  var sbL=subsForYM(ym);
+  var fT=sumA(fxL,function(x){return x._eff!==undefined?x._eff:x.amount;});
+  var sT=sumA(sbL,function(x){return x._eff!==undefined?x._eff:x.amount;});
+  var crT=sumA(mE.filter(function(e){return CRDS.indexOf(e.payment)>=0;}),function(x){return x.amount;});
+  var yI=sumA(S.incomes.filter(function(x){return x.date.slice(0,4)===''+yr;}),function(x){return x.amount;});
+  var yE=sumA(S.expenses.filter(function(x){return x.date.slice(0,4)===''+yr;}),function(x){return x.amount;});
+  return {ym:ym,yr:yr,mo:mo,mI:mI,mE:mE,tI:tI,tE:tE,bal:tI-tE,fT:fT,sT:sT,rem:tI-tE-fT,crT:crT,yI:yI,yE:yE,fxL:fxL,sbL:sbL};
+}
+
+/* ══ レンダリング ════════════════════════════════════ */
+function render(){
+  var root=document.getElementById('app');
+  root.innerHTML='';
+  var c=calc();
+  root.appendChild(buildHdr(c));
+  var pg=d('page');
+  if(S.page==='dashboard')    pg.appendChild(buildDash(c));
+  if(S.page==='transactions') pg.appendChild(buildTx(c));
+  if(S.page==='credit')       pg.appendChild(buildCredit(c));
+  if(S.page==='cashflow')     pg.appendChild(buildFlow(c));
+  if(S.page==='settings')     pg.appendChild(buildSettings(c));
+  root.appendChild(pg);
+  root.appendChild(buildNav());
+  if(S.modal==='income')  root.appendChild(moIncome());
+  if(S.modal==='expense') root.appendChild(moExpense());
+  if(S.modal==='sub')     root.appendChild(moSub());
+  if(S.modal==='fixed')   root.appendChild(moFixed());
+  if(S.modal==='irr')     root.appendChild(moIrr());
+  if(S.modal==='confirm') root.appendChild(moConfirm());
+  requestAnimationFrame(drawGraphs);
+}
+function openM(type,item){S.modal=type;S.edit=item;render();}
+function closeM(){S.modal=null;S.edit=null;render();}
+function chMonth(delta){
+  var p=S.ym.split('-').map(Number);
+  var dt=new Date(p[0],p[1]-1+delta,1);
+  S.ym=dt.getFullYear()+'-'+p2(dt.getMonth()+1);
+  render();
+}
+function confirm2(cb){S.cbOK=cb;S.modal='confirm';render();}
+
+/* ══ ヘッダー ════════════════════════════════════════ */
+function buildHdr(c){
+  var hdr=d('hdr');
+  var mn=d('mnav');
+  var pb=h('button',{onclick:function(){chMonth(-1);}},['‹']);
+  var nb=h('button',{onclick:function(){chMonth(1);}},['›']);
+  var lbl=d('mlbl',[c.yr+'年'+c.mo+'月']);
+  mn.append(pb,lbl,nb);
+  var bs=d('hbtns');
+  bs.appendChild(h('button',{cls:'btn bsm',onclick:function(){openM('income',null);}},['＋収入']));
+  bs.appendChild(h('button',{cls:'btn bblu bsm',onclick:function(){openM('expense',null);}},['＋支出']));
+  hdr.append(mn,bs);
+  return hdr;
+}
+
+/* ══ ナビ ════════════════════════════════════════════ */
+function buildNav(){
+  var nav=h('nav',{cls:'nav'});
+  [['dashboard','📊','ダッシュ'],['transactions','📋','収支'],['credit','💳','クレカ'],['cashflow','📈','推移'],['settings','⚙️','設定']].forEach(function(x){
+    var b=h('button',{cls:'nb'+(S.page===x[0]?' on':'')});
+    b.addEventListener('click',function(){S.page=x[0];render();});
+    b.appendChild(h('span',{cls:'ni'},[x[1]]));
+    b.appendChild(t(x[2]));
+    nav.appendChild(b);
+  });
+  return nav;
+}
+
+/* ══ カード共通 ══════════════════════════════════════ */
+function card(title,right){
+  var c=d('card');
+  var hd=d('chd',[h('span',{cls:'cti'},[title])]);
+  if(right)hd.appendChild(right);
+  c.appendChild(hd);
+  return c;
+}
+function mc2(label,val,cls){return d('mc',[d('mla',[label]),d('mva '+cls,[val])]);}
+function pbar(pct,col){var b=d('pb');var f=d('pf');f.style.width=pct+'%';f.style.background=col;b.appendChild(f);return b;}
+function bdg(text,cls){return h('span',{cls:'bdg '+cls},[text]);}
+function fgrp(label,inp){return d('fgrp',[h('label',{cls:'flbl'},[label]),inp]);}
+
+/* ══ ダッシュボード ══════════════════════════════════ */
+function buildDash(c){
+  var f=document.createDocumentFragment();
+
+  // 4メトリクス
+  f.appendChild(d('mg',[mc2('今月収入',fmt(c.tI),'ci'),mc2('今月支出',fmt(c.tE),'ce'),mc2('今月収支',(c.bal>=0?'+':'')+fmt(c.bal),c.bal>=0?'cp':'cn'),mc2('カード合計',fmt(c.crT),'ce')]));
+
+  // 残額カード
+  var rc=card('今月の残額',h('span',{style:{fontSize:'11px',color:'#aaa'}},['収入−支出−固定費']));
+  var rb=d('cbd');
+  var rv=d('');
+  rv.style.cssText='display:flex;align-items:baseline;gap:7px;margin-bottom:7px';
+  rv.appendChild(h('span',{style:{fontSize:'21px',fontWeight:'700',color:c.rem>=0?'#1d4ed8':'#c0392b'}},[fmt(c.rem)]));
+  rv.appendChild(h('span',{style:{fontSize:'11px',color:'#aaa'}},['あと使える']));
+  rb.appendChild(rv);
+  rb.appendChild(pbar(c.tI>0?Math.min(100,Math.round(c.rem/c.tI*100)):0,c.rem>=0?'#1d4ed8':'#c0392b'));
+  var rs=d('');rs.style.cssText='display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:#aaa';
+  rs.appendChild(h('span',{},'固定費 '+fmt(c.fT)));
+  rs.appendChild(h('span',{},'サブスク '+fmt(c.sT)));
+  rb.appendChild(rs);rc.appendChild(rb);f.appendChild(rc);
+
+  // クレカ
+  var crCards=CRDS.map(function(n,i){return {name:n,col:CCOL[i],amt:sumA(c.mE.filter(function(e){return e.payment===n;}),function(e){return e.amount;})};}).filter(function(x){return x.amt>0;});
+  if(crCards.length){
+    var cc=card('クレジットカード合計',h('span',{style:{fontSize:'14px',fontWeight:'700',color:'#b03a1a'}},[fmt(c.crT)]));
+    var ccb=d('cbd');
+    var cbar=d('cbar');
+    crCards.forEach(function(x){var s=d('');s.style.flex=String(x.amt);s.style.background=x.col;cbar.appendChild(s);});
+    ccb.appendChild(cbar);
+    crCards.forEach(function(x){
+      var row=d('');row.style.marginBottom='7px';
+      var top=d('');top.style.cssText='display:flex;justify-content:space-between;margin-bottom:2px;font-size:13px';
+      top.appendChild(h('span',{},[x.name]));top.appendChild(h('span',{style:{fontWeight:'700'}},[fmt(x.amt)]));
+      row.appendChild(top);row.appendChild(pbar(c.crT>0?Math.round(x.amt/c.crT*100):0,x.col));
+      ccb.appendChild(row);
+    });
+    cc.appendChild(ccb);f.appendChild(cc);
+  }
+
+  // 6ヶ月グラフ
+  var gc=card('6ヶ月推移',null);
+  var gb=d('cbd');gb.style.padding='10px 8px';
+  var cv=h('canvas',{id:'g-dash'});cv.style.cssText='width:100%;height:160px';
+  gb.appendChild(cv);gc.appendChild(gb);f.appendChild(gc);
+
+  // カテゴリ別
+  var catT={};
+  c.mE.forEach(function(e){catT[e.category]=(catT[e.category]||0)+e.amount;});
+  var catE=Object.entries(catT).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+  var catCols=['#2563eb','#0a7a5e','#d97706','#7c3aed','#b03a1a'];
+  if(catE.length){
+    S._catE=catE;S._catCols=catCols;
+    var ctc=card('カテゴリ別支出',null);
+    var ctb=d('cbd');
+    var inn=d('');inn.style.cssText='display:flex;gap:10px;align-items:center';
+    var pw=d('');pw.style.cssText='position:relative;width:88px;height:88px;flex-shrink:0';
+    pw.appendChild(h('canvas',{id:'g-pie'}));
+    var lg=d('');lg.style.flex='1';
+    catE.forEach(function(kv,i){
+      var row=d('');row.style.cssText='display:flex;align-items:center;gap:5px;margin-bottom:5px';
+      var dot=d('');dot.style.cssText='width:7px;height:7px;border-radius:2px;background:'+catCols[i]+';flex-shrink:0';
+      var nm=d('');nm.style.cssText='flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';nm.textContent=kv[0];
+      row.appendChild(dot);row.appendChild(nm);row.appendChild(h('span',{style:{fontSize:'11px',fontWeight:'700'}},[fmt(kv[1])]));
+      lg.appendChild(row);
+    });
+    inn.appendChild(pw);inn.appendChild(lg);ctb.appendChild(inn);ctc.appendChild(ctb);f.appendChild(ctc);
+  } else { S._catE=null; }
+
+  // 最近の取引
+  var rec=card('最近の取引',null);var reb=d('cbd');
+  var recItems=[].concat(c.mI.map(function(x){return Object.assign({},x,{type:'income'});}),c.mE.map(function(x){return Object.assign({},x,{type:'expense'});})).sort(function(a,b){return b.date.localeCompare(a.date);}).slice(0,5);
+  if(!recItems.length)reb.appendChild(d('empty',['データなし']));
+  else recItems.forEach(function(x){reb.appendChild(txRow(x));});
+  rec.appendChild(reb);f.appendChild(rec);
+
+  // 年間
+  f.appendChild(d('mg',[mc2('年間収入',fmt(c.yI),'ci'),mc2('年間支出',fmt(c.yE),'ce')]));
+  return f;
+}
+
+/* ══ クレカページ ════════════════════════════════════ */
+function buildCredit(c){
+  var f=document.createDocumentFragment();
+  var byC=CRDS.map(function(n,i){return {name:n,col:CCOL[i],amt:sumA(c.mE.filter(function(e){return e.payment===n;}),function(e){return e.amount;}),items:c.mE.filter(function(e){return e.payment===n;}).sort(function(a,b){return b.date.localeCompare(a.date);})};});
+  var sc=card('クレジットカード合計',h('span',{style:{fontSize:'16px',fontWeight:'700',color:'#b03a1a'}},[fmt(c.crT)]));
+  var sb=d('cbd');
+  if(c.crT>0){
+    var cbar=d('cbar');
+    byC.filter(function(x){return x.amt>0;}).forEach(function(x){var s=d('');s.style.flex=String(x.amt);s.style.background=x.col;cbar.appendChild(s);});
+    sb.appendChild(cbar);
+  }
+  byC.forEach(function(x){
+    var row=d('');row.style.marginBottom='11px';
+    var top=d('');top.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:2px';
+    var left=d('');left.style.cssText='display:flex;align-items:center;gap:5px';
+    var dot=d('');dot.style.cssText='width:9px;height:9px;border-radius:2px;background:'+x.col;
+    left.appendChild(dot);left.appendChild(h('span',{style:{fontWeight:'600',fontSize:'13px'}},[x.name]));
+    top.appendChild(left);top.appendChild(h('span',{style:{fontWeight:'700',fontSize:'14px'}},[fmt(x.amt)]));
+    row.appendChild(top);row.appendChild(pbar(c.crT>0?Math.round(x.amt/c.crT*100):0,x.col));
+    if(c.crT>0){var pct=d('');pct.style.cssText='font-size:10px;color:#bbb;margin-top:2px;text-align:right';pct.textContent=Math.round(x.amt/c.crT*100)+'%';row.appendChild(pct);}
+    sb.appendChild(row);
+  });
+  sc.appendChild(sb);f.appendChild(sc);
+  byC.forEach(function(x){
+    var cd=d('card');
+    var ah=d('acd');
+    var left=d('');left.style.cssText='display:flex;align-items:center;gap:7px';
+    var dot=d('');dot.style.cssText='width:9px;height:9px;border-radius:2px;background:'+x.col;
+    left.appendChild(dot);left.appendChild(h('span',{style:{fontWeight:'700',fontSize:'13px'}},[x.name]));left.appendChild(bdg(fmt(x.amt),'b4'));
+    var chv=h('span',{},[S.openCard===x.name?'▴':'▾']);
+    ah.appendChild(left);ah.appendChild(chv);
+    ah.addEventListener('click',function(){S.openCard=S.openCard===x.name?null:x.name;render();});
+    cd.appendChild(ah);
+    if(S.openCard===x.name){
+      var body=d('cbd');
+      if(!x.items.length)body.appendChild(d('empty',['利用履歴なし']));
+      else{
+        x.items.forEach(function(item){
+          var row=d('tx');
+          var ico=d('txico txe',['↑']);
+          var info=d('txinfo',[d('txname',[item.name])]);
+          var meta=d('txmeta',[bdg(item.category,CC[item.category]||'b6'),t(' '+item.date.slice(5).replace('-','/'))]);
+          info.appendChild(meta);
+          row.appendChild(ico);row.appendChild(info);row.appendChild(h('span',{cls:'txamt tae'},[fmt(item.amount)]));
+          body.appendChild(row);
+        });
+        var tot=d('');tot.style.cssText='border-top:1px solid #f5f5f0;padding-top:7px;display:flex;justify-content:space-between;font-size:12px;margin-top:3px';
+        tot.appendChild(h('span',{style:{color:'#bbb'}},[x.items.length+'件']));tot.appendChild(h('span',{style:{fontWeight:'700'}},[fmt(x.amt)]));
+        body.appendChild(tot);
+      }
+      cd.appendChild(body);
+    }
+    f.appendChild(cd);
+  });
+  return f;
+}
+
+/* ══ 収支一覧 ════════════════════════════════════════ */
+function buildTx(c){
+  var f=document.createDocumentFragment();
+  var tabs=d('tabs');
+  [['all','全て'],['income','収入'],['expense','支出']].forEach(function(x){
+    var tb=h('button',{cls:'tab'+(S.txTab===x[0]?' on':'')},[x[1]]);
+    tb.addEventListener('click',function(){S.txTab=x[0];render();});
+    tabs.appendChild(tb);
+  });
+  f.appendChild(tabs);
+
+  var sbox=d('sbox',[h('span',{},'🔍')]);
+  var si=h('input',{type:'text',placeholder:'品名で検索...'});
+  si.value=S.txQ;si.addEventListener('input',function(e){S.txQ=e.target.value;render();});
+  var sx=h('button',{style:{background:'none',border:'none',cursor:'pointer',fontSize:'16px',color:'#ccc'}},['×']);
+  sx.addEventListener('click',function(){S.txQ='';render();});
+  sbox.appendChild(si);sbox.appendChild(sx);f.appendChild(sbox);
+
+  var fr=d('');fr.style.cssText='display:flex;gap:6px;margin-bottom:10px';
+  var allCats=[].concat(IC,EC).filter(function(v,i,a){return a.indexOf(v)===i;});
+  var cs=h('select',{cls:'finp',style:{flex:'1',fontSize:'12px',padding:'7px 8px'}});
+  [['','全カテゴリ']].concat(allCats.map(function(c){return[c,c];})).forEach(function(x){var o=h('option',{},[x[1]]);o.value=x[0];if(x[0]===S.txCat)o.selected=true;cs.appendChild(o);});
+  cs.addEventListener('change',function(e){S.txCat=e.target.value;render();});
+  var ps=h('select',{cls:'finp',style:{flex:'1',fontSize:'12px',padding:'7px 8px'}});
+  [['','全支払方法']].concat(S.payments.map(function(p){return[p,p];})).forEach(function(x){var o=h('option',{},[x[1]]);o.value=x[0];if(x[0]===S.txPay)o.selected=true;ps.appendChild(o);});
+  ps.addEventListener('change',function(e){S.txPay=e.target.value;render();});
+  fr.appendChild(cs);fr.appendChild(ps);f.appendChild(fr);
+
+  if(S.txTab!=='income'){
+    var payT={};c.mE.forEach(function(e){payT[e.payment]=(payT[e.payment]||0)+e.amount;});
+    if(Object.keys(payT).length){
+      var pc=card('支払方法別合計',null);var pb2=d('cbd');
+      Object.entries(payT).sort(function(a,b){return b[1]-a[1];}).forEach(function(kv){
+        var row=d('');row.style.cssText='display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f5f0;font-size:12px';
+        row.appendChild(h('span',{},[kv[0]]));row.appendChild(h('span',{style:{fontWeight:'700'}},[fmt(kv[1])]));
+        pb2.appendChild(row);
+      });
+      pc.appendChild(pb2);f.appendChild(pc);
+    }
+  }
+
+  var items=[];
+  if(S.txTab!=='income') c.mE.forEach(function(e){items.push(Object.assign({},e,{type:'expense'}));});
+  if(S.txTab!=='expense')c.mI.forEach(function(i){items.push(Object.assign({},i,{type:'income'}));});
+  items.sort(function(a,b){return b.date.localeCompare(a.date);});
+  if(S.txQ)   items=items.filter(function(i){return i.name.indexOf(S.txQ)>=0;});
+  if(S.txCat) items=items.filter(function(i){return i.category===S.txCat;});
+  if(S.txPay) items=items.filter(function(i){return i.payment===S.txPay;});
+
+  var lc=card(items.length+'件',h('button',{cls:'btn bsm',onclick:function(){openM('expense',null);}},['＋追加']));
+  var lb=d('cbd');
+  if(!items.length)lb.appendChild(d('empty',['データなし']));
+  else items.forEach(function(x){lb.appendChild(txRow(x));});
+  lc.appendChild(lb);f.appendChild(lc);
+  return f;
+}
+
+/* ══ キャッシュフロー推移 ════════════════════════════ */
+function buildFlow(c){
+  var f=document.createDocumentFragment();
+  var yr=c.yr;
+  var ms=[];for(var i=0;i<12;i++)ms.push(yr+'-'+p2(i+1));
+  var iD=ms.map(function(m){return sumA(S.incomes.filter(function(x){return x.date.slice(0,7)===m;}),function(x){return x.amount;});});
+  var eD=ms.map(function(m){return sumA(S.expenses.filter(function(x){return x.date.slice(0,7)===m;}),function(x){return x.amount;});});
+  var bD=ms.map(function(_,i){return iD[i]-eD[i];});
+  var aI=sumA(iD),aE=sumA(eD),aB=aI-aE;
+  var mg=d('mg',[mc2('年間収入',fmt(aI),'ci'),mc2('年間支出',fmt(aE),'ce')]);
+  var bm=mc2('年間収支',(aB>=0?'+':'')+fmt(aB),aB>=0?'cp':'cn');bm.style.gridColumn='1/-1';mg.appendChild(bm);f.appendChild(mg);
+  var gc=card(yr+'年 月別キャッシュフロー',null);
+  var gb=d('cbd');gb.style.padding='10px 8px';
+  var cv=h('canvas',{id:'g-cf'});cv.style.cssText='width:100%;height:190px';
+  gb.appendChild(cv);gc.appendChild(gb);f.appendChild(gc);
+  S._cfM=ms;S._cfI=iD;S._cfE=eD;S._cfB=bD;
+  var dc=card('月別明細',null);var db=d('cbd');db.style.padding='0';
+  ms.forEach(function(m,i){
+    if(!iD[i]&&!eD[i])return;
+    var b=bD[i];
+    var row=d('');row.style.cssText='padding:9px 14px;border-bottom:1px solid #f5f5f0';
+    var top=d('');top.style.cssText='display:flex;justify-content:space-between';
+    top.appendChild(h('span',{style:{fontWeight:'600',fontSize:'13px'}},[m.slice(5)+'月']));
+    top.appendChild(h('span',{style:{fontWeight:'700',color:b>=0?'#1d4ed8':'#c0392b',fontSize:'13px'}},[(b>=0?'+':'')+fmt(b)]));
+    var sub=d('');sub.style.cssText='font-size:11px;color:#bbb;margin-top:2px';sub.textContent='収入 '+fmt(iD[i])+'　支出 '+fmt(eD[i]);
+    row.appendChild(top);row.appendChild(sub);db.appendChild(row);
+  });
+  dc.appendChild(db);f.appendChild(dc);
+  var catT={};S.expenses.filter(function(e){return e.date.slice(0,4)===''+yr;}).forEach(function(e){catT[e.category]=(catT[e.category]||0)+e.amount;});
+  var catE=Object.entries(catT).sort(function(a,b){return b[1]-a[1];});
+  if(catE.length){
+    var cc2=card('年間カテゴリ別支出',null);var cb2=d('cbd');
+    catE.forEach(function(kv){
+      var row=d('');row.style.marginBottom='9px';
+      var top2=d('');top2.style.cssText='display:flex;justify-content:space-between;font-size:12px;margin-bottom:2px';
+      top2.appendChild(h('span',{},[kv[0]]));top2.appendChild(h('span',{style:{fontWeight:'700'}},[fmt(kv[1])]));
+      row.appendChild(top2);row.appendChild(pbar(catE[0][1]>0?Math.round(kv[1]/catE[0][1]*100):0,'#2563eb'));
+      cb2.appendChild(row);
+    });
+    cc2.appendChild(cb2);f.appendChild(cc2);
+  }
+  return f;
+}
+
+/* ══ 設定 ════════════════════════════════════════════ */
+function buildSettings(c){
+  var f=document.createDocumentFragment();
+
+  // サブスク
+  var sT=sumA(c.sbL,function(x){return x._eff!==undefined?x._eff:x.amount;});
+  var sc=card('サブスク管理',makeAddBtn(sT,'sub'));
+  var sb=d('cbd');
+  if(!S.subs.length)sb.appendChild(d('empty',['未登録']));
+  else S.subs.forEach(function(s){sb.appendChild(makeListItem(s,'sub',c.ym));});
+  sc.appendChild(sb);f.appendChild(sc);
+
+  // 固定費
+  var fT=sumA(c.fxL,function(x){return x._eff!==undefined?x._eff:x.amount;});
+  var fc=card('固定費管理',makeAddBtn(fT,'fixed'));
+  var fb=d('cbd');
+  if(!S.fixed.length)fb.appendChild(d('empty',['未登録']));
+  else S.fixed.forEach(function(item){fb.appendChild(makeListItem(item,'fixed',c.ym));});
+  fc.appendChild(fb);f.appendChild(fc);
+
+  // ① 支払方法管理（削除付き）
+  var pc=card('支払方法管理',null);var pb3=d('cbd');
+  var pr=d('');pr.style.cssText='display:flex;gap:7px;margin-bottom:10px';
+  var pi=h('input',{type:'text',cls:'finp',placeholder:'新しい支払方法'});
+  var pa=h('button',{cls:'btn bsm'},['追加']);
+  pa.addEventListener('click',function(){var v=pi.value.trim();if(v&&S.payments.indexOf(v)<0){S.payments.push(v);render();}});
+  pr.appendChild(pi);pr.appendChild(pa);pb3.appendChild(pr);
+  var blist=d('');blist.style.cssText='display:flex;flex-wrap:wrap;gap:4px';
+  S.payments.forEach(function(p){
+    var wrap=d('paytag');
+    var pname=h('span',{},[p]);
+    var del=h('button',{style:{background:'none',border:'none',cursor:'pointer',color:'#93b4e0',fontSize:'14px',padding:'0 0 0 2px',lineHeight:'1'}},['×']);
+    del.addEventListener('click',function(){confirm2(function(){S.payments=S.payments.filter(function(x){return x!==p;});render();});});
+    wrap.appendChild(pname);wrap.appendChild(del);
+    blist.appendChild(wrap);
+  });
+  pb3.appendChild(blist);pc.appendChild(pb3);f.appendChild(pc);
+
+  // CSV
+  var ec=card('データエクスポート',null);var eb=d('cbd');
+  var xb=h('button',{cls:'btn',style:{width:'100%',justifyContent:'center'}},['📥 CSVダウンロード']);
+  xb.addEventListener('click',exportCSV);eb.appendChild(xb);ec.appendChild(eb);f.appendChild(ec);
+
+  // ④ 月次確定
+  var lc=card('月次確定',null);var lb=d('cbd');
+  var note=d('');note.style.cssText='font-size:12px;color:#aaa;margin-bottom:10px;line-height:1.6';
+  note.textContent='確定すると固定費・サブスクが将来の変更に影響されなくなります。';
+  lb.appendChild(note);
+  var locked=S.locked[c.ym];
+  var lockBtn=h('button',{cls:'btn '+(locked?'':'bblu'),style:{width:'100%',justifyContent:'center'}},[(locked?'✅ '+c.yr+'年'+c.mo+'月 確定済み':'🔒 '+c.yr+'年'+c.mo+'月を確定する')]);
+  if(!locked)lockBtn.addEventListener('click',function(){
+    S.locked[c.ym]={
+      fixed:S.fixed.map(function(f2){return {id:f2.id,name:f2.name,amount:effAmt(f2,c.ym),_eff:effAmt(f2,c.ym)};}),
+      subs: S.subs.map(function(s){return {id:s.id,name:s.name,amount:effAmt(s,c.ym),_eff:effAmt(s,c.ym)};})
+    };render();
+  });
+  lb.appendChild(lockBtn);lc.appendChild(lb);f.appendChild(lc);
+  return f;
+}
+
+function makeAddBtn(total,type){
+  var wrap=d('');wrap.style.cssText='display:flex;align-items:center;gap:6px';
+  wrap.appendChild(h('span',{style:{fontSize:'12px',fontWeight:'700',color:'#b03a1a'}},[fmt(total)+'/月']));
+  var btn2=h('button',{cls:'btn bsm'},['＋追加']);
+  btn2.addEventListener('click',function(){openM(type,null);});
+  wrap.appendChild(btn2);
+  return wrap;
+}
+
+function makeListItem(item,type,ym){
+  var ea=effAmt(item,ym);
+  var hasIrr=(item.irregs||[]).length>0;
+  var row=d('li');
+  var info=d('linfo',[d('lname',[item.name])]);
+  var sub=d('lsub',[type==='sub'?'毎月'+item.day+'日 · '+item.payment:item.payment]);
+  if(hasIrr){var tag=d('irrtag',['⚡ イレギュラーあり']);sub.appendChild(tag);}
+  info.appendChild(sub);
+  var acts=d('lacts');
+  // 編集ボタン
+  var eb=h('button',{cls:'bic',title:'編集'},['✎']);
+  eb.addEventListener('click',function(){openM(type,item);});
+  // イレギュラーボタン
+  var ib=h('button',{cls:'bic',title:'月別金額'},['📅']);
+  ib.addEventListener('click',function(){S.irrTgt={type:type,id:item.id,ym:ym};openM('irr',null);});
+  // 削除ボタン
+  var db=h('button',{cls:'bic',title:'削除'},['🗑']);
+  db.addEventListener('click',function(){
+    confirm2(function(){
+      if(type==='sub')S.subs=S.subs.filter(function(x){return x.id!==item.id;});
+      else S.fixed=S.fixed.filter(function(x){return x.id!==item.id;});
+      render();
+    });
+  });
+  acts.appendChild(eb);acts.appendChild(ib);acts.appendChild(db);
+  row.appendChild(info);row.appendChild(h('span',{cls:'lamt'},[fmt(ea)]));row.appendChild(acts);
+  return row;
+}
+
+/* ══ 取引行 ══════════════════════════════════════════ */
+function txRow(item){
+  var row=d('tx');
+  var ico=d('txico '+(item.type==='income'?'txi':'txe'),[item.type==='income'?'↓':'↑']);
+  var info=d('txinfo',[d('txname',[item.name])]);
+  var meta=d('txmeta',[bdg(item.category,CC[item.category]||'b6')]);
+  if(item.payment){meta.appendChild(t(' '));meta.appendChild(t(item.payment));}
+  meta.appendChild(t(' '+item.date.slice(5).replace('-','/')));
+  info.appendChild(meta);
+  var amt=h('span',{cls:'txamt '+(item.type==='income'?'tai':'tae')},[(item.type==='income'?'+':'-')+fmt(item.amount)]);
+  var acts=d('lacts');
+  var eb=h('button',{cls:'bic'},['✎']);
+  eb.addEventListener('click',function(){openM(item.type==='income'?'income':'expense',item);});
+  var db=h('button',{cls:'bic'},['🗑']);
+  db.addEventListener('click',function(){confirm2(function(){if(item.type==='income')S.incomes=S.incomes.filter(function(x){return x.id!==item.id;});else S.expenses=S.expenses.filter(function(x){return x.id!==item.id;});render();});});
+  acts.appendChild(eb);acts.appendChild(db);
+  row.appendChild(ico);row.appendChild(info);row.appendChild(amt);row.appendChild(acts);
+  return row;
+}
+
+/* ══ モーダル共通 ════════════════════════════════════ */
+function makeOverlay(title,body,onSave,saveLabel){
+  var ov=d('overlay');
+  ov.addEventListener('click',closeM);
+  var mo=d('modal');
+  mo.addEventListener('click',function(e){e.stopPropagation();});
+  mo.appendChild(d('moti',[title]));
+  mo.appendChild(body);
+  var btns=d('mobt');
+  var cb=h('button',{cls:'btn'},['キャンセル']);cb.addEventListener('click',closeM);
+  var sb=h('button',{cls:'btn bblu'},[saveLabel||'保存する']);sb.addEventListener('click',onSave);
+  btns.appendChild(cb);btns.appendChild(sb);mo.appendChild(btns);
+  ov.appendChild(mo);return ov;
+}
+
+/* ══ 収入モーダル ════════════════════════════════════ */
+function moIncome(){
+  var init=S.edit;
+  var f={date:init?init.date:toDay(),amount:init?''+init.amount:'',category:init?init.category:'給料',name:init?init.name:'',memo:init?init.memo||'':''};
+  var body=d('');
+  var di=h('input',{type:'date',cls:'finp',value:f.date});di.addEventListener('change',function(e){f.date=e.target.value;});
+  var ai=h('input',{type:'number',cls:'finp',placeholder:'0'});ai.value=f.amount;ai.addEventListener('input',function(e){f.amount=e.target.value;});
+  var cs=h('select',{cls:'finp'});
+  IC.forEach(function(c){var o=h('option',{},[c]);o.value=c;if(c===f.category)o.selected=true;cs.appendChild(o);});
+  cs.addEventListener('change',function(e){f.category=e.target.value;});
+  var ni=h('input',{type:'text',cls:'finp',placeholder:'給与・案件名など'});ni.value=f.name;ni.addEventListener('input',function(e){f.name=e.target.value;});
+  var mi=h('input',{type:'text',cls:'finp',placeholder:'任意'});mi.value=f.memo;mi.addEventListener('input',function(e){f.memo=e.target.value;});
+  body.appendChild(fgrp('日付',di));body.appendChild(fgrp('金額',ai));body.appendChild(fgrp('カテゴリ',cs));body.appendChild(fgrp('品名',ni));body.appendChild(fgrp('メモ',mi));
+  return makeOverlay(init?'収入を編集':'収入を追加',body,function(){
+    var amt=Number(f.amount);if(!amt||!f.name)return;
+    var data={date:f.date,amount:amt,category:f.category,name:f.name,memo:f.memo};
+    if(init)S.incomes=S.incomes.map(function(x){return x.id===init.id?Object.assign({id:x.id},data):x;});
+    else S.incomes.push(Object.assign({id:Date.now()},data));
+    closeM();
+  },init?'更新する':'保存する');
+}
+
+/* ══ 支出モーダル ════════════════════════════════════ */
+function moExpense(){
+  var init=S.edit;
+  var f={date:init?init.date:toDay(),amount:init?''+init.amount:'',payment:init?init.payment:S.payments[0]||'現金',category:init?init.category:'食費',name:init?init.name:'',memo:init?init.memo||'':''};
+  var body=d('');
+  var di=h('input',{type:'date',cls:'finp',value:f.date});di.addEventListener('change',function(e){f.date=e.target.value;});
+  var ai=h('input',{type:'number',cls:'finp',placeholder:'0'});ai.value=f.amount;ai.addEventListener('input',function(e){f.amount=e.target.value;});
+  var r2=d('frow');
+  var ps=h('select',{cls:'finp'});S.payments.forEach(function(p){var o=h('option',{},[p]);o.value=p;if(p===f.payment)o.selected=true;ps.appendChild(o);});ps.addEventListener('change',function(e){f.payment=e.target.value;});
+  var cs=h('select',{cls:'finp'});EC.forEach(function(c){var o=h('option',{},[c]);o.value=c;if(c===f.category)o.selected=true;cs.appendChild(o);});cs.addEventListener('change',function(e){f.category=e.target.value;});
+  r2.appendChild(fgrp('支払方法',ps));r2.appendChild(fgrp('カテゴリ',cs));
+  var ni=h('input',{type:'text',cls:'finp',placeholder:'何を買ったか'});ni.value=f.name;ni.addEventListener('input',function(e){f.name=e.target.value;});
+  var mi=h('input',{type:'text',cls:'finp',placeholder:'任意'});mi.value=f.memo;mi.addEventListener('input',function(e){f.memo=e.target.value;});
+  body.appendChild(fgrp('日付',di));body.appendChild(fgrp('金額',ai));body.appendChild(r2);body.appendChild(fgrp('品名',ni));body.appendChild(fgrp('メモ',mi));
+  return makeOverlay(init?'支出を編集':'支出を追加',body,function(){
+    var amt=Number(f.amount);if(!amt||!f.name)return;
+    var data={date:f.date,amount:amt,payment:f.payment,category:f.category,name:f.name,memo:f.memo};
+    if(init)S.expenses=S.expenses.map(function(x){return x.id===init.id?Object.assign({id:x.id},data):x;});
+    else S.expenses.push(Object.assign({id:Date.now()},data));
+    closeM();
+  },init?'更新する':'保存する');
+}
+
+/* ══ サブスクモーダル ════════════════════════════════ */
+function moSub(){
+  var init=S.edit;
+  var f={name:init?init.name:'',amount:init?''+init.amount:'',day:init?''+init.day:'1',payment:init?init.payment:S.payments[0]||'現金'};
+  var body=d('');
+  var ni=h('input',{type:'text',cls:'finp',placeholder:'Netflix'});ni.value=f.name;ni.addEventListener('input',function(e){f.name=e.target.value;});
+  var r2=d('frow');
+  var ai=h('input',{type:'number',cls:'finp',placeholder:'0'});ai.value=f.amount;ai.addEventListener('input',function(e){f.amount=e.target.value;});
+  var dayi=h('input',{type:'number',cls:'finp',min:'1',max:'31'});dayi.value=f.day;dayi.addEventListener('input',function(e){f.day=e.target.value;});
+  r2.appendChild(fgrp('月額（通常）',ai));r2.appendChild(fgrp('支払日',dayi));
+  var ps=h('select',{cls:'finp'});S.payments.forEach(function(p){var o=h('option',{},[p]);o.value=p;if(p===f.payment)o.selected=true;ps.appendChild(o);});ps.addEventListener('change',function(e){f.payment=e.target.value;});
+  body.appendChild(fgrp('サービス名',ni));body.appendChild(r2);body.appendChild(fgrp('支払方法',ps));
+  return makeOverlay(init?'サブスクを編集':'サブスクを追加',body,function(){
+    if(!f.name||!f.amount)return;
+    if(init)S.subs=S.subs.map(function(x){return x.id===init.id?Object.assign({},x,{name:f.name,amount:Number(f.amount),day:Number(f.day),payment:f.payment}):x;});
+    else S.subs.push({id:Date.now(),name:f.name,amount:Number(f.amount),day:Number(f.day),payment:f.payment,irregs:[]});
+    closeM();
+  },init?'更新する':'保存する');
+}
+
+/* ══ 固定費モーダル ══════════════════════════════════ */
+function moFixed(){
+  var init=S.edit;
+  var f={name:init?init.name:'',amount:init?''+init.amount:'',payment:init?init.payment:S.payments[0]||'現金'};
+  var body=d('');
+  var ni=h('input',{type:'text',cls:'finp',placeholder:'家賃'});ni.value=f.name;ni.addEventListener('input',function(e){f.name=e.target.value;});
+  var ai=h('input',{type:'number',cls:'finp',placeholder:'0'});ai.value=f.amount;ai.addEventListener('input',function(e){f.amount=e.target.value;});
+  var ps=h('select',{cls:'finp'});S.payments.forEach(function(p){var o=h('option',{},[p]);o.value=p;if(p===f.payment)o.selected=true;ps.appendChild(o);});ps.addEventListener('change',function(e){f.payment=e.target.value;});
+  body.appendChild(fgrp('項目名',ni));body.appendChild(fgrp('月額（通常）',ai));body.appendChild(fgrp('支払方法',ps));
+  return makeOverlay(init?'固定費を編集':'固定費を追加',body,function(){
+    if(!f.name||!f.amount)return;
+    if(init)S.fixed=S.fixed.map(function(x){return x.id===init.id?Object.assign({},x,{name:f.name,amount:Number(f.amount),payment:f.payment}):x;});
+    else S.fixed.push({id:Date.now(),name:f.name,amount:Number(f.amount),payment:f.payment,irregs:[]});
+    closeM();
+  },init?'更新する':'保存する');
+}
+
+/* ══ イレギュラーモーダル ════════════════════════════ */
+function moIrr(){
+  var tgt=S.irrTgt;if(!tgt){closeM();return d('');}
+  var list=tgt.type==='fixed'?S.fixed:S.subs;
+  var item=list.filter(function(x){return x.id===tgt.id;})[0];
+  if(!item){closeM();return d('');}
+  var f={ym:tgt.ym||nowYM(),amount:''};
+  var body=d('');
+  var note=d('');note.style.cssText='font-size:12px;color:#888;background:#f8f8f2;border-radius:8px;padding:10px;margin-bottom:14px;line-height:1.6';
+  note.textContent='通常額: '+fmt(item.amount)+'　特定の月だけ違う金額を設定できます。';
+  body.appendChild(note);
+  var irrList=d('');irrList.style.marginBottom='14px';
+  var irrs=item.irregs||[];
+  if(irrs.length){
+    irrs.slice().sort(function(a,b){return a.ym.localeCompare(b.ym);}).forEach(function(irr){
+      var row=d('');row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f5f5f0;font-size:13px';
+      var yr2=irr.ym.slice(0,4);var mo2=irr.ym.slice(5);
+      row.appendChild(h('span',{style:{flex:'1',fontWeight:'500'}},[yr2+'年'+mo2+'月']));
+      row.appendChild(h('span',{style:{fontWeight:'700'}},[fmt(irr.amount)]));
+      var db=h('button',{cls:'bic'},['🗑']);
+      db.addEventListener('click',function(){item.irregs=item.irregs.filter(function(x){return x.ym!==irr.ym;});render();S.irrTgt=tgt;openM('irr',null);});
+      row.appendChild(db);irrList.appendChild(row);
+    });
+  } else {
+    irrList.appendChild(d('empty',['設定なし']));
+  }
+  body.appendChild(irrList);
+  var sep=d('');sep.style.cssText='font-size:12px;font-weight:600;color:#555;margin-bottom:8px';sep.textContent='↓ 新しい期間を追加';
+  body.appendChild(sep);
+  var ymI=h('input',{type:'month',cls:'finp'});ymI.value=f.ym;ymI.addEventListener('change',function(e){f.ym=e.target.value;});
+  var ai=h('input',{type:'number',cls:'finp',placeholder:'その月の金額'});ai.addEventListener('input',function(e){f.amount=e.target.value;});
+  body.appendChild(fgrp('対象月',ymI));body.appendChild(fgrp('金額',ai));
+  return makeOverlay(item.name+'の月別金額',body,function(){
+    if(!f.amount)return;
+    var amt=Number(f.amount);
+    var idx=-1;
+    for(var i2=0;i2<item.irregs.length;i2++){if(item.irregs[i2].ym===f.ym){idx=i2;break;}}
+    if(idx>=0)item.irregs[idx].amount=amt;
+    else item.irregs.push({ym:f.ym,amount:amt});
+    closeM();
+  },'追加する');
+}
+
+/* ══ 確認ダイアログ ══════════════════════════════════ */
+function moConfirm(){
+  var ov=d('overlay');ov.addEventListener('click',closeM);
+  var mo=d('modal');mo.addEventListener('click',function(e){e.stopPropagation();});
+  mo.appendChild(d('moti',['削除しますか？']));
+  mo.appendChild(h('p',{style:{fontSize:'12px',color:'#aaa',textAlign:'center',marginBottom:'16px'}},['この操作は取り消せません。']));
+  var btns=d('mobt');
+  var cb=h('button',{cls:'btn'},['キャンセル']);cb.addEventListener('click',closeM);
+  var db=h('button',{cls:'btn bred'},['削除する']);db.addEventListener('click',function(){if(S.cbOK)S.cbOK();S.modal=null;S.cbOK=null;});
+  btns.appendChild(cb);btns.appendChild(db);mo.appendChild(btns);ov.appendChild(mo);return ov;
+}
+
+/* ══ グラフ ══════════════════════════════════════════ */
+function drawGraphs(){
+  var c=calc();
+  drawBar(c);
+  drawPie();
+  drawCF();
+}
+
+function drawBar(c){
+  var cv=document.getElementById('g-dash');if(!cv)return;
+  var W=Math.max(cv.parentElement.clientWidth-16,260);var H=160;cv.width=W;cv.height=H;
+  var ctx=cv.getContext('2d');
+  var yr=c.yr;var mo=c.mo;
+  var ms=[];for(var i=0;i<6;i++){var dt=new Date(yr,mo-1-5+i,1);ms.push(dt.getFullYear()+'-'+p2(dt.getMonth()+1));}
+  var iD=ms.map(function(m){return sumA(S.incomes.filter(function(x){return x.date.slice(0,7)===m;}),function(x){return x.amount;});});
+  var eD=ms.map(function(m){return sumA(S.expenses.filter(function(x){return x.date.slice(0,7)===m;}),function(x){return x.amount;});});
+  var labs=ms.map(function(m){return m.slice(5)+'月';});
+  barChart(ctx,W,H,labs,iD,eD);
+}
+
+function drawCF(){
+  var cv=document.getElementById('g-cf');if(!cv||!S._cfM)return;
+  var W=Math.max(cv.parentElement.clientWidth-16,260);var H=190;cv.width=W;cv.height=H;
+  var ctx=cv.getContext('2d');
+  var labs=S._cfM.map(function(m){return +m.slice(5)+'月';});
+  cfChart(ctx,W,H,labs,S._cfI,S._cfE,S._cfB);
+}
+
+function drawPie(){
+  var cv=document.getElementById('g-pie');if(!cv||!S._catE||!S._catE.length)return;
+  var sz=88;cv.width=sz;cv.height=sz;
+  var ctx=cv.getContext('2d');
+  var total=sumA(S._catE,function(kv){return kv[1];});
+  var start=-Math.PI/2;
+  S._catE.forEach(function(kv,i){
+    var angle=kv[1]/total*Math.PI*2;
+    ctx.beginPath();ctx.moveTo(sz/2,sz/2);ctx.arc(sz/2,sz/2,sz/2-2,start,start+angle);ctx.closePath();
+    ctx.fillStyle=S._catCols[i];ctx.fill();start+=angle;
+  });
+  ctx.beginPath();ctx.arc(sz/2,sz/2,sz/2*0.6,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+}
+
+function barChart(ctx,W,H,labs,iD,eD){
+  var pad={t:8,b:26,l:42,r:6};
+  var cW=W-pad.l-pad.r;var cH=H-pad.t-pad.b;
+  var maxV=Math.max.apply(null,iD.concat(eD).concat([100]));
+  ctx.clearRect(0,0,W,H);
+  for(var g=0;g<=4;g++){var gy=pad.t+cH*(1-g/4);ctx.strokeStyle='#f0efe8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(W-pad.r,gy);ctx.stroke();}
+  ctx.fillStyle='#ccc';ctx.font='9px sans-serif';ctx.textAlign='right';
+  for(var g2=0;g2<=4;g2++){var gy2=pad.t+cH*(1-g2/4);var v=Math.round(maxV*g2/4);ctx.fillText(v>=10000?Math.round(v/1000)+'k':''+v,pad.l-3,gy2+3);}
+  var bW=cW/labs.length;var bh=Math.max(4,Math.floor(bW*0.22));
+  labs.forEach(function(lbl,i){
+    var x=pad.l+i*bW+bW/2;
+    var ih=Math.max(0,cH*(iD[i]/maxV));var eh=Math.max(0,cH*(eD[i]/maxV));
+    ctx.fillStyle='rgba(10,122,94,.8)';rrect(ctx,x-bh*2-1,pad.t+cH-ih,bh*2,ih);
+    ctx.fillStyle='rgba(176,58,26,.8)';rrect(ctx,x+1,pad.t+cH-eh,bh*2,eh);
+    ctx.fillStyle='#bbb';ctx.font='9px sans-serif';ctx.textAlign='center';ctx.fillText(lbl,x,H-8);
+  });
+}
+
+function cfChart(ctx,W,H,labs,iD,eD,bD){
+  var pad={t:8,b:24,l:42,r:6};
+  var cW=W-pad.l-pad.r;var cH=H-pad.t-pad.b;
+  var maxV=Math.max.apply(null,iD.concat(eD).concat([100]));
+  ctx.clearRect(0,0,W,H);
+  for(var g=0;g<=4;g++){var gy=pad.t+cH*(1-g/4);ctx.strokeStyle='#f0efe8';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(W-pad.r,gy);ctx.stroke();}
+  ctx.fillStyle='#ccc';ctx.font='9px sans-serif';ctx.textAlign='right';
+  for(var g2=0;g2<=4;g2++){var gy2=pad.t+cH*(1-g2/4);var v=Math.round(maxV*g2/4);ctx.fillText(v>=10000?Math.round(v/1000)+'k':''+v,pad.l-3,gy2+3);}
+  var bW=cW/labs.length;var bh=Math.max(3,Math.floor(bW*0.18));
+  labs.forEach(function(lbl,i){
+    var x=pad.l+i*bW+bW/2;
+    var ih=Math.max(0,cH*(iD[i]/maxV));var eh=Math.max(0,cH*(eD[i]/maxV));
+    if(ih){ctx.fillStyle='rgba(10,122,94,.65)';rrect(ctx,x-bh*2-1,pad.t+cH-ih,bh*2,ih);}
+    if(eh){ctx.fillStyle='rgba(176,58,26,.65)';rrect(ctx,x+1,pad.t+cH-eh,bh*2,eh);}
+    ctx.fillStyle='#bbb';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.fillText(lbl,x,H-6);
+  });
+  ctx.strokeStyle='#2563eb';ctx.lineWidth=2;ctx.lineJoin='round';ctx.beginPath();
+  labs.forEach(function(lbl,i){
+    var x=pad.l+i*bW+bW/2;
+    var y=pad.t+cH*(1-Math.max(-maxV,Math.min(maxV,bD[i]))/maxV);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  labs.forEach(function(lbl,i){
+    var x=pad.l+i*bW+bW/2;
+    var y=pad.t+cH*(1-Math.max(-maxV,Math.min(maxV,bD[i]))/maxV);
+    ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fillStyle=bD[i]>=0?'#2563eb':'#c0392b';ctx.fill();
+  });
+}
+
+function rrect(ctx,x,y,w,h){if(h<=0||w<=0)return;var r=Math.min(3,h/2,w/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();ctx.fill();}
+
+/* ══ CSV ════════════════════════════════════════════ */
+function exportCSV(){
+  var rows=[['種類','日付','金額','カテゴリ','品名','支払方法','メモ']];
+  S.incomes.forEach(function(i){rows.push(['収入',i.date,i.amount,i.category,i.name,'',i.memo||'']);});
+  S.expenses.forEach(function(e){rows.push(['支出',e.date,e.amount,e.category,e.name,e.payment,e.memo||'']);});
+  var blob=new Blob(['\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n')],{type:'text/csv'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='cashflow.csv';a.click();
+}
+
+/* ══ 起動 ════════════════════════════════════════════ */
+render();
+})();
+</script>
+</body>
+</html>
