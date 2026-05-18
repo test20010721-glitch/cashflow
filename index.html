@@ -254,7 +254,7 @@ function buildHdr(c){
 /* ══ ナビ ════════════════════════════════════════════ */
 function buildNav(){
   var nav=h('nav',{cls:'nav'});
-  [['dashboard','📊','ダッシュ'],['transactions','📋','収支'],['credit','💳','クレカ'],['cashflow','📈','推移'],['settings','⚙️','設定']].forEach(function(x){
+  [['dashboard','📊','ダッシュボード'],['transactions','📋','収支'],['credit','💳','クレカ'],['cashflow','📈','推移'],['settings','⚙️','設定']].forEach(function(x){
     var b=h('button',{cls:'nb'+(S.page===x[0]?' on':'')});
     b.addEventListener('click',function(){S.page=x[0];render();});
     b.appendChild(h('span',{cls:'ni'},[x[1]]));
