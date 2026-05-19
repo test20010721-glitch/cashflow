@@ -483,7 +483,7 @@ function formIrr(){
   bS.onclick=function(){M.irrRange=false;bS.className='btn bblu bsm';bR.className='btn bsm';aS.style.display='';aR.style.display='none';};
   bR.onclick=function(){M.irrRange=true;bR.className='btn bblu bsm';bS.className='btn bsm';aR.style.display='';aS.style.display='none';};
   toggle.append(bS,bR);form.appendChild(toggle);form.appendChild(aS);form.appendChild(aR);
-  form.appendChild(fgrpEl('金額（円・支払いなしは 0）',textInput('irr_amount','0（解約月は 0）','','numeric')));
+  form.appendChild(fgrpEl('金額（円・支払いなしは 0）',textInput('irr_amount','0','','numeric')));
 
   var btns=ce('div','mobt');
   var cb=ce('button','btn');cb.type='button';cb.textContent='キャンセル';cb.onclick=closeM;
