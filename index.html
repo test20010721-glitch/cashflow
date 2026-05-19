@@ -245,7 +245,7 @@ function buildHdr(c){
 
 function buildNav(){
   var nav=ce('nav','nav');
-  [['dashboard','📊','ダッシュ'],['transactions','📋','収支'],['credit','💳','クレカ'],['cashflow','📈','推移'],['settings','⚙️','設定']].forEach(function(x){
+  [['dashboard','📊','ダッシュボード'],['transactions','📋','収支一覧'],['credit','💳','クレカ'],['cashflow','📈','推移'],['settings','⚙️','設定']].forEach(function(x){
     var b=ce('button','nb'+(S.page===x[0]?' on':''));
     b.innerHTML='<span class="ni">'+x[1]+'</span>'+x[2];
     b.onclick=function(){S.page=x[0];render();};
@@ -560,7 +560,7 @@ function buildDash(c){
    ['カード合計',fmt(c.crT),'ce']].forEach(function(x){mg.appendChild(mc2(x[0],x[1],x[2]));});
   f.appendChild(mg);
 
-  var rc=cardEl('今月の残額',mk('span','','収入 − 支出（固定費・サブスク含む）'));
+  var rc=cardEl('今月の残額',mk('span','','収入 − 支出'));
   rc.querySelector('.cti').nextSibling;
   var rb=ce('div','cbd');
   var rv=ce('div','');rv.style.cssText='display:flex;align-items:baseline;gap:7px;margin-bottom:7px';
