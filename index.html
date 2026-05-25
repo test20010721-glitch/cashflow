@@ -93,9 +93,9 @@ canvas{display:block;background:#fff}
 'use strict';
 
 var IC=['給料','副業','ココナラ','アプリ売上','動画編集','その他'];
-var EC=['食費','交通費','固定費','サブスク','娯楽','美容','日用品','その他'];
+var EC=['食費','交通費','遊び','贈り物','病院','美容','日用品','その他'];
 var CC={'給料':'b2','副業':'b1','ココナラ':'b5','アプリ売上':'b3','動画編集':'b4','その他':'b6',
-  '食費':'b4','交通費':'b1','固定費':'b3','サブスク':'b5','娯楽':'b2','美容':'b6','日用品':'b1'};
+  '食費':'b4','交通費':'b1','遊び':'b3','贈り物':'b5','病院':'b2','美容':'b6','日用品':'b1'};
 var CCOL=['#2563eb','#0a7a5e','#d97706','#7c3aed','#b03a1a','#0891b2','#65a30d'];
 
 function fmt(n){return '¥'+Math.abs(Math.round(n)).toLocaleString('ja-JP');}
@@ -288,7 +288,7 @@ function buildHdr(c){
 
 function buildNav(){
   var nav=ce('nav','nav');
-  [['dashboard','📊','ダッシュ'],['transactions','📋','収支'],['credit','💳','クレカ'],['cashflow','📈','推移'],['settings','⚙️','設定']].forEach(function(x){
+  [['dashboard','📊','ダッシュボード'],['transactions','📋','収支一覧'],['credit','💳','クレカ'],['cashflow','📈','推移'],['settings','⚙️','設定']].forEach(function(x){
     var b=ce('button','nb'+(S.page===x[0]?' on':''));
     b.innerHTML='<span class="ni">'+x[1]+'</span>'+x[2];
     b.onclick=function(){S.page=x[0];render();};
@@ -526,7 +526,7 @@ function formIrr(){
   bS.onclick=function(){M.irrRange=false;bS.className='btn bblu bsm';bR.className='btn bsm';aS.style.display='';aR.style.display='none';};
   bR.onclick=function(){M.irrRange=true;bR.className='btn bblu bsm';bS.className='btn bsm';aR.style.display='';aS.style.display='none';};
   toggle.append(bS,bR);form.appendChild(toggle);form.appendChild(aS);form.appendChild(aR);
-  form.appendChild(fgrpEl('金額（円・支払いなしは 0）',textInput('irr_amount','0（解約月は 0）','','numeric')));
+  form.appendChild(fgrpEl('金額（円・支払いなしは 0）',textInput('irr_amount','0','','numeric')));
 
   var btns=ce('div','mobt');
   var cb=ce('button','btn');cb.type='button';cb.textContent='キャンセル';cb.onclick=closeM;
@@ -626,7 +626,7 @@ function buildDash(c){
    ['翌月請求予定',fmt(c.crT),'ce']].forEach(function(x){mg.appendChild(mc2(x[0],x[1],x[2]));});
   f.appendChild(mg);
 
-  var rc=cardEl('今月の残額',mk('span','','収入 − 支出（固定費・サブスク含む）'));
+  var rc=cardEl('今月の残額',mk('span','','収入 − 支出'));
   rc.querySelector('.cti').nextSibling;
   var rb=ce('div','cbd');
   var rv=ce('div','');rv.style.cssText='display:flex;align-items:baseline;gap:7px;margin-bottom:7px';
