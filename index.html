@@ -1060,7 +1060,7 @@ function txRow(item){
   var meta=ce('div','txmeta');
   if(item._billed){
     // 前月クレカ請求
-    var bbdg=mk('span','bdg b3','💳 前月クレカ請求');bbdg.style.marginRight='3px';meta.appendChild(bbdg);
+    var bbdg=mk('span','bdg b6','💳 前月クレカ請求');bbdg.style.marginRight='3px';meta.appendChild(bbdg);
     if(item._virtual){
       var vbdg2=mk('span','bdg b5',item.category==='固定費'?'固定費':'サブスク');vbdg2.style.marginRight='3px';meta.appendChild(vbdg2);
     }
