@@ -1181,7 +1181,7 @@ function txRow(item){
   var meta=ce('div','txmeta');
   if(item._billed){
     // 前月クレカ請求：💳バッジ（グレー）＋カテゴリバッジ（色付き）
-    var bbdg=mk('span','bdg b6','💳 クレカ請求');bbdg.style.marginRight='3px';meta.appendChild(bbdg);
+    var bbdg=mk('span','bdg b6','💳 前月クレカ請求');bbdg.style.marginRight='3px';meta.appendChild(bbdg);
     meta.appendChild(bdg(item.category,CC[item.category]||'b6'));
   } else if(item._virtual){
     // 固定費・サブスク（現金払い）
